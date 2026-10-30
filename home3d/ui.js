@@ -1,0 +1,27 @@
+const root=document.querySelector('.home3d');
+const data=JSON.parse(document.querySelector('#scene-data').textContent);
+const list=root.querySelector('#scene-list'),info=root.querySelector('#scene-info'),coach=root.querySelector('.scene-coach'),status=root.querySelector('.scene-status'),listButton=root.querySelector('[data-list]');
+const motion=matchMedia('(prefers-reduced-motion:reduce)');
+let scene=null,opener=null,step=0,selected=null,loading=0;
+const categories={'ritual-site':'東隆宮與科儀地點',temple:'七角頭廟','troupe-base':'陣團堂口'};
+const tones={'ritual-site':'indigo',temple:'pine','troupe-base':'plum'};
+function hidePanels(){list.hidden=true;info.hidden=true;coach.hidden=true;listButton.setAttribute('aria-expanded','false');}
+function close(){hidePanels();scene?.reset();selected=null;const url=new URL(location.href);url.searchParams.delete('item');history.replaceState(null,'',url);if(opener?.isConnected&&opener.getClientRects().length>0)opener.focus();else listButton.focus();}
+function select(id,source){const pin=data.pins.find(p=>p.id===id);if(!pin)return;hidePanels();opener=source||listButton;selected=id;info.className='scene-panel scene-info tone-'+tones[pin.category];info.querySelector('[data-info-category]').textContent=categories[pin.category]+' · '+pin.number;info.querySelector('h2').textContent=pin.title;info.querySelector('[data-info-copy]').textContent=pin.lead;info.querySelector('[data-info-link]').href=pin.url;const related=info.querySelector('.scene-related');related.replaceChildren();for(const {url,title} of pin.related.slice(0,3)){const a=document.createElement('a');a.href=url;a.textContent=title+' ↗';related.append(a);}info.hidden=false;scene?.focus(id);info.querySelector('h2').focus({preventScroll:true});const url=new URL(location.href);url.searchParams.set('item',id);history.replaceState(null,'',url);status.textContent='已選取'+pin.title;}
+function openList(){const open=list.hidden;hidePanels();if(open){opener=listButton;list.hidden=false;listButton.setAttribute('aria-expanded','true');list.querySelector('h2').focus({preventScroll:true});}}
+root.querySelectorAll('[data-place]').forEach(b=>b.addEventListener('click',()=>select(b.dataset.place,b)));
+listButton.addEventListener('click',openList);root.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',close));root.querySelector('[data-reset]').addEventListener('click',close);
+root.querySelectorAll('[data-zoom]').forEach(b=>b.addEventListener('click',()=>scene?.zoom(b.dataset.zoom)));
+const interact=root.querySelector('[data-interact]');interact.addEventListener('click',()=>{const enabled=interact.getAttribute('aria-pressed')!=='true';interact.setAttribute('aria-pressed',String(enabled));interact.textContent=enabled?'結束操作':'操作立體地圖';root.dataset.interactive=String(enabled);scene?.setInteractive(enabled);});
+const steps=[['拖曳看看東港','從海邊轉向街庄。滑鼠拖曳旋轉、滾輪縮放；手機先按「操作立體地圖」，再以雙指縮放。'],['點宮廟，翻開地方故事','點場景裡的宮廟或地點標籤，相機會帶你走近。想找七角頭或陣團堂口，也可以打開地點清單。'],['從全覽，走進一科迎王','先讀迎王全覽，認識科儀與地方的關係。往下還有迎王介紹、倒數和各篇故事；平面地圖也一直都在。']];
+function showStep(){coach.querySelector('[data-step]').textContent=(step+1)+' / 3';coach.querySelector('h2').textContent=steps[step][0];coach.querySelector('[data-coach-copy]').textContent=steps[step][1];coach.querySelector('[data-next]').textContent=step===2?'開始逛東港':'下一步 →';}
+function finishCoach(){coach.hidden=true;try{localStorage.setItem('donggang-3d-coach-v1','done');}catch{}root.querySelector('[data-help]').focus({preventScroll:true});}
+function openCoach(){hidePanels();step=0;showStep();coach.hidden=false;opener=root.querySelector('[data-help]');}
+root.querySelector('[data-help]').addEventListener('click',openCoach);root.querySelector('[data-skip]').addEventListener('click',finishCoach);root.querySelector('[data-next]').addEventListener('click',()=>{if(step===2)finishCoach();else{step++;showStep();coach.querySelector('h2').focus({preventScroll:true});}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(!list.hidden||!info.hidden||!coach.hidden)){if(!coach.hidden)finishCoach();else close();}});
+function fallback(){scene?.dispose();scene=null;root.dataset.state='fallback';status.textContent='靜態繪本模式：從地點清單選一間廟，翻開迎王故事。';root.querySelectorAll('[data-zoom],[data-interact]').forEach(b=>b.hidden=true);hidePanels();list.hidden=false;listButton.setAttribute('aria-expanded','true');if(selected)select(selected);}
+async function start(){const run=++loading;if(motion.matches||navigator.connection?.saveData){fallback();return;}try{const probe=document.createElement('canvas');const gl=probe.getContext('webgl2');if(!gl){fallback();return;}gl.getExtension('WEBGL_lose_context')?.loseContext();const {createScene}=await import('./scene.js');if(run!==loading)return;scene=createScene(root,data,select,fallback);root.querySelectorAll('[data-zoom],[data-interact]').forEach(b=>b.hidden=false);if(selected)scene.focus(selected);}catch{fallback();}}
+motion.addEventListener('change',()=>{loading++;if(motion.matches)fallback();else{hidePanels();start();}});
+const initial=new URL(location.href).searchParams.get('item');if(initial)select(initial);else{let seen=false;try{seen=localStorage.getItem('donggang-3d-coach-v1')==='done';}catch{}if(!seen&&!motion.matches&&!navigator.connection?.saveData)openCoach();}
+window.addEventListener('popstate',()=>{const id=new URL(location.href).searchParams.get('item');if(id)select(id);else close();});
+start();

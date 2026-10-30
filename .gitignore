@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+*.log
+.env
+.env.*
+work/
+
+# build 產出（部署到 gh-pages 分支）
+dist/
+dist-committed/
+__pycache__/

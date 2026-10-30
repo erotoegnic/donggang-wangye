@@ -1,0 +1,15 @@
+import fs from 'node:fs/promises';
+import {createRequire} from 'node:module';
+import assert from 'node:assert/strict';
+const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAYWRIGHT_PATH||'C:/Users/eroto/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const base=process.env.QA_BASE||'https://donggang-wangye-picturebook.edadcard03.chatgpt.site',out='work/home-map-qa/production';
+let input='';for await(const chunk of process.stdin)input+=chunk;const {token}=JSON.parse(input||'{}');
+const browser=await chromium.launch({channel:'chrome',headless:process.env.QA_VISIBLE!=='1'}),report={base,checks:[],errors:[],failed:[],thirdParty:[]};
+try{
+ const context=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'reduce'});if(token)await context.route('**/*',route=>route.continue({headers:new URL(route.request().url()).origin===new URL(base).origin?{...route.request().headers(),'OAI-Sites-Authorization':'Bearer '+token}:route.request().headers()}));await context.addInitScript(()=>localStorage.setItem('donggang-home-coach-v1','1'));const page=await context.newPage();await fs.mkdir(out,{recursive:true});page.on('pageerror',e=>report.errors.push(String(e)));page.on('response',r=>{if(r.status()>=400)report.failed.push({url:r.url(),status:r.status()});});page.on('request',r=>{if(new URL(r.url()).origin!==new URL(base).origin)report.thirdParty.push(r.url());});
+ const local=await fs.readFile('dist/index.html','utf8'),expected=local.match(/\/assets\/home-map-[a-f0-9]+\.js/)[0];
+ for(const [url,name]of [['/','home'],['/?item=donglong','deep-link'],['/neighborhoods.html','picturebook'],['/guide/8.html','article']]){const response=await page.goto(base+url,{waitUntil:'networkidle'});assert.equal(response.status(),200);await page.evaluate(()=>document.fonts.ready);assert.equal(await page.locator('h1').count(),1);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth===document.documentElement.clientWidth),true);if(name==='home'){assert.ok(await page.locator(`script[src="${expected}"]`).count());assert.equal(await page.locator('[data-pin]').count(),25);}if(name==='deep-link')assert.equal(await page.locator('#hm-card-title').textContent(),'東隆宮');if(name==='picturebook'){assert.equal(await page.locator('[data-piece]').count(),8);await page.locator('.original-map-window img').evaluate(e=>e.decode());}assert.equal(await page.locator('.organization-tree,.tree-canvas').count(),0);await page.screenshot({path:out+'/'+name+'.png'});report.checks.push({url,status:response.status(),title:await page.title()});}
+ await page.goto(base+'/?item=donglong',{waitUntil:'networkidle'});assert.equal(report.errors.length,0);assert.equal(report.failed.length,0);assert.equal(report.thirdParty.length,0);report.loadedHomeScript=expected;
+}finally{await fs.writeFile(out+'/live-check.json',JSON.stringify(report,null,2));if(process.env.QA_VISIBLE!=='1')await browser.close();}
+console.log(JSON.stringify(report));
+if(process.env.QA_VISIBLE==='1')await new Promise(()=>{});

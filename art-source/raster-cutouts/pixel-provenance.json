@@ -1,0 +1,297 @@
+{
+  "sourceSha256": "a75e057f5c508937bed693882f95c9993dd832e85c0ab507f05aa7602bac79db",
+  "method": "Original JPEG pixels copied without resizing, recoloring, tracing, or generative painting. Alpha masking only; base repairs copy original unmasked pixels.",
+  "assets": [
+    {
+      "name": "temple-lunding",
+      "canvasSize": 185,
+      "visiblePixels": 24374,
+      "parts": 1,
+      "baseCopiedPixels": 168,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "temple-xia",
+      "canvasSize": 190,
+      "visiblePixels": 24344,
+      "parts": 1,
+      "baseCopiedPixels": 175,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "temple-anhai",
+      "canvasSize": 194,
+      "visiblePixels": 24356,
+      "parts": 1,
+      "baseCopiedPixels": 170,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "temple-xiazhong",
+      "canvasSize": 194,
+      "visiblePixels": 24336,
+      "parts": 1,
+      "baseCopiedPixels": 118,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "temple-dingzhong",
+      "canvasSize": 193,
+      "visiblePixels": 24416,
+      "parts": 1,
+      "baseCopiedPixels": 142,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "temple-ding",
+      "canvasSize": 193,
+      "visiblePixels": 24459,
+      "parts": 1,
+      "baseCopiedPixels": 154,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "temple-pu",
+      "canvasSize": 194,
+      "visiblePixels": 24317,
+      "parts": 1,
+      "baseCopiedPixels": 162,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "temple-donglong",
+      "canvasSize": 195,
+      "visiblePixels": 24272,
+      "parts": 1,
+      "baseCopiedPixels": 147,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "carrier-yellow",
+      "canvasSize": 178,
+      "visiblePixels": 13046,
+      "parts": 4,
+      "baseCopiedPixels": 1393,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "carrier-pink",
+      "canvasSize": 179,
+      "visiblePixels": 12328,
+      "parts": 4,
+      "baseCopiedPixels": 1661,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "carrier-black",
+      "canvasSize": 179,
+      "visiblePixels": 13149,
+      "parts": 4,
+      "baseCopiedPixels": 1646,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "carrier-green",
+      "canvasSize": 180,
+      "visiblePixels": 12083,
+      "parts": 4,
+      "baseCopiedPixels": 668,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "carrier-purple",
+      "canvasSize": 182,
+      "visiblePixels": 13096,
+      "parts": 4,
+      "baseCopiedPixels": 935,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "carrier-white",
+      "canvasSize": 193,
+      "visiblePixels": 12683,
+      "parts": 3,
+      "baseCopiedPixels": 1033,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "carrier-blue",
+      "canvasSize": 185,
+      "visiblePixels": 12140,
+      "parts": 4,
+      "baseCopiedPixels": 991,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "wudu",
+      "canvasSize": 196,
+      "visiblePixels": 17283,
+      "parts": 1,
+      "baseCopiedPixels": 274,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "eighth",
+      "canvasSize": 202,
+      "visiblePixels": 21010,
+      "parts": 1,
+      "baseCopiedPixels": 28,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "seventh",
+      "canvasSize": 175,
+      "visiblePixels": 19717,
+      "parts": 1,
+      "baseCopiedPixels": 606,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "lantern",
+      "canvasSize": 202,
+      "visiblePixels": 16025,
+      "parts": 1,
+      "baseCopiedPixels": 1067,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "arch",
+      "canvasSize": 189,
+      "visiblePixels": 16311,
+      "parts": 0,
+      "baseCopiedPixels": 0,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "night",
+      "canvasSize": 206,
+      "visiblePixels": 14753,
+      "parts": 0,
+      "baseCopiedPixels": 0,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "horse",
+      "canvasSize": 187,
+      "visiblePixels": 13458,
+      "parts": 1,
+      "baseCopiedPixels": 203,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "offerings",
+      "canvasSize": 189,
+      "visiblePixels": 16960,
+      "parts": 1,
+      "baseCopiedPixels": 320,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "boat",
+      "canvasSize": 218,
+      "visiblePixels": 15961,
+      "parts": 1,
+      "baseCopiedPixels": 304,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "blessing",
+      "canvasSize": 177,
+      "visiblePixels": 15960,
+      "parts": 0,
+      "baseCopiedPixels": 0,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "boat-vessel",
+      "canvasSize": 218,
+      "visiblePixels": 7071,
+      "parts": 1,
+      "baseCopiedPixels": 233,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "flag",
+      "canvasSize": 214,
+      "visiblePixels": 12943,
+      "parts": 1,
+      "baseCopiedPixels": 2197,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "palace",
+      "canvasSize": 184,
+      "visiblePixels": 17171,
+      "parts": 0,
+      "baseCopiedPixels": 0,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    },
+    {
+      "name": "arrow",
+      "canvasSize": 32,
+      "visiblePixels": 616,
+      "parts": 0,
+      "baseCopiedPixels": 0,
+      "stillRgbMismatch": 0,
+      "restRecompositionMismatch": 0,
+      "baseCopyMismatch": 0
+    }
+  ],
+  "sourceUnchanged": true
+}

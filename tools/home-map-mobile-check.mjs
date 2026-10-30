@@ -1,0 +1,56 @@
+import {createRequire} from 'node:module';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {pins,phaseEntries} from '../home-map.mjs';
+const require=createRequire(import.meta.url),{chromium,webkit}=require(process.env.PLAYWRIGHT_PATH||'C:/Users/eroto/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const qaRequire=createRequire(path.resolve('../../work/donggang-qa/depth-check.mjs')),AxeBuilder=qaRequire('@axe-core/playwright').default;
+const base=process.env.QA_BASE||'http://127.0.0.1:4173',out=path.resolve('../homepage-fix2/after');
+await fs.mkdir(out,{recursive:true});
+const report={checks:[],errors:[],failed:[],external:[],screenshots:[],metrics:[],accessibility:[]};
+const check=(name,result)=>{assert.ok(result,name);report.checks.push(name);};
+const browser=await chromium.launch({channel:'chrome'});
+const settled=page=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+const capture=async(page,name)=>{await settled(page);await page.screenshot({path:path.join(out,name+'.png')});report.screenshots.push(name+'.png');};
+try{
+ const context=await browser.newContext({reducedMotion:'reduce'}),page=await context.newPage();
+ page.on('pageerror',e=>report.errors.push(e.message));page.on('response',r=>{if(r.status()>=400)report.failed.push(r.url());});page.on('request',r=>{if(new URL(r.url()).origin!==new URL(base).origin)report.external.push(r.url());});
+ for(const width of [320,390,768,1440]){
+  await page.setViewportSize({width,height:844});await page.goto(base);await page.evaluate(()=>document.fonts.ready);await settled(page);
+  check('No initial panel '+width,!await page.locator('#hm-panel').isVisible()&&!await page.locator('#hm-search-panel').isVisible()&&!await page.locator('.hm-coach').isVisible());
+  check('3D default '+width,await page.locator('#home-map').getAttribute('data-mode')==='3d');
+  check('Single h1 below map '+width,await page.locator('h1').count()===1&&await page.locator('h1').evaluate(e=>e.closest('#home-introduction')!==null));
+  check('No horizontal overflow '+width,await page.evaluate(()=>document.documentElement.scrollWidth===innerWidth));
+  const metrics=await page.evaluate(()=>{const stage=document.querySelector('.hm-stage').getBoundingClientRect(),header=document.querySelector('.site-header').getBoundingClientRect(),selectors=['.hm-title-pill','.hm-search-toggle','.hm-controls','.hm-read-arrow','.hm-attribution'];const rects=selectors.map(s=>document.querySelector(s).getBoundingClientRect());let covered=0;for(let y=Math.ceil(stage.top);y<stage.bottom;y++)for(let x=0;x<innerWidth;x++)if(rects.some(r=>x>=r.left&&x<r.right&&y>=r.top&&y<r.bottom))covered++;return {width:innerWidth,height:innerHeight,headerHeight:header.height,mapHeight:stage.height,mapVisiblePercent:100*(1-covered/(stage.width*stage.height)),viewportVisiblePercent:100*(stage.width*stage.height-covered)/(innerWidth*innerHeight),controlsOverlap:rects.some((a,i)=>rects.slice(i+1).some(b=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top))};});
+  report.metrics.push(metrics);check('Map fills below header '+width,metrics.mapHeight===844-metrics.headerHeight);check('80 percent visible '+width,metrics.mapVisiblePercent>=80);check('Controls separated '+width,!metrics.controlsOverlap);
+  for(const id of ['donglong','coast'])check('Core label '+width+'/'+id,await page.locator(`[data-pin="${id}"] .hm-pin-name`).isVisible());
+  await capture(page,'overview-'+width);
+  await page.locator('[data-mode-toggle]').click();await settled(page);check('2D mode '+width,await page.locator('.hm-plane').evaluate(e=>getComputedStyle(e).transform==='none'));await capture(page,'2d-'+width);await page.locator('[data-mode-toggle]').click();
+  await page.locator('.hm-search-toggle').click();check('Search focus '+width,await page.locator('#hm-search').evaluate(e=>e===document.activeElement));await capture(page,'search-'+width);
+  await page.locator('#hm-search').fill('代天府');await page.locator('#hm-search').press('Enter');await settled(page);check('Search opens donglong '+width,await page.locator('#hm-card-title').textContent()==='東隆宮');check('Search closes on selection '+width,!await page.locator('#hm-search-panel').isVisible());
+  await capture(page,'card-'+width);const preview=await page.locator('#hm-panel').boundingBox();if(width<=760)check('Preview <=30 percent '+width,preview.height<=844*.3);
+  if(width<=760)for(const [snap,name]of [[1,'half'],[2,'full']]){await page.locator('.hm-handle').click();check('Drawer snap '+width+'/'+snap,await page.locator('#hm-panel').getAttribute('data-snap')===String(snap));await capture(page,'card-'+name+'-'+width);}
+  await page.locator('.hm-panel-close').click();check('Close X '+width,!await page.locator('#hm-panel').isVisible());
+  await page.locator('[data-view="reset"]').click();await page.locator('.hm-search-toggle').click();await page.mouse.click(width-20,Math.min(700,metrics.mapHeight));check('Blank map closes search '+width,!await page.locator('#hm-search-panel').isVisible());
+  await page.locator('.hm-read-arrow').click();await settled(page);check('Read arrow reaches intro '+width,await page.evaluate(()=>scrollY>300));await capture(page,'introduction-'+width);
+ }
+ await page.setViewportSize({width:390,height:844});await page.goto(base);await page.locator('.hm-search-toggle').click();
+ for(const cat of ['temple','ritual-site','troupe-base','all']){await page.locator(`[data-cat="${cat}"]`).click();const count=pins.filter(p=>cat==='all'||p.category===cat||p.extraCategories.includes(cat)).length;check('Category count '+cat,await page.locator('.hm-count').textContent()===`顯示 ${count} 個地點`);}
+ for(const phase of ['before','1','2','3','4','5','6','7','8','night','after']){await page.locator('#hm-phase').selectOption(phase);check('Phase never opens drawer '+phase,!await page.locator('#hm-panel').isVisible());const links=await page.locator(`[data-schedule="${phase}"] a`).evaluateAll(es=>es.map(e=>e.getAttribute('href')));check('Schedule preserved '+phase,JSON.stringify(links)===JSON.stringify(phaseEntries(phase).map(l=>l.url)));}
+ await page.locator('#hm-search').fill('不存在XYZ');check('Empty search',await page.locator('.hm-empty').isVisible());await page.locator('[data-search-close]').click();
+ await page.goto(base+'/?cat=ritual-site&phase=6&item=donglong');check('Combined URL',await page.locator('#hm-card-title').textContent()==='東隆宮');await page.keyboard.press('Escape');check('Escape closes card',!await page.locator('#hm-panel').isVisible());await page.keyboard.press('Enter');check('Keyboard reopens',await page.locator('#hm-panel').isVisible());await page.goBack();check('Back closes',!await page.locator('#hm-panel').isVisible());await page.goForward();check('Forward restores',await page.locator('#hm-panel').isVisible());
+ for(const route of ['', '?item=donglong','neighborhoods.html']){await page.goto(base+'/'+route);const axe=await new AxeBuilder({page}).analyze();report.accessibility.push({route,violations:axe.violations});check('Axe '+route,axe.violations.length===0);}
+ await page.goto(base);await page.locator('.hm-search-toggle').click();let axe=await new AxeBuilder({page}).analyze();report.accessibility.push({route:'search',violations:axe.violations});check('Axe search',axe.violations.length===0);
+ await page.locator('[data-help]').click();check('Optional coach opens',await page.locator('.hm-coach').isVisible());await page.keyboard.press('Escape');check('Coach escape',!await page.locator('.hm-coach').isVisible());check('Coach returns focus to visible search toggle',await page.locator('.hm-search-toggle').evaluate(e=>e===document.activeElement));
+ const touchContext=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,reducedMotion:'reduce'}),touch=await touchContext.newPage(),cdp=await touchContext.newCDPSession(touch);
+ await touch.goto(base);await settled(touch);const camera=()=>touch.locator('.hm-world').evaluate(e=>e.style.transform);let before=await camera();
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:180,y:600,id:1}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:260,y:660,id:1}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await settled(touch);check('Single finger pans',before!==await camera());check('Page stays still',await touch.evaluate(()=>scrollY===0));
+ await touch.locator('[data-pin="donglong"]').focus();await touch.keyboard.press('Enter');check('Keyboard opens after touch pan',await touch.locator('#hm-card-title').textContent()==='東隆宮');await touch.keyboard.press('Escape');
+ before=await camera();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:120,y:500,id:1},{x:260,y:500,id:2}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:70,y:500,id:1},{x:310,y:500,id:2}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await settled(touch);check('Pinch zooms',before!==await camera());check('No page pinch',await touch.evaluate(()=>visualViewport.scale===1));
+ await touch.goto(base+'/?item=donglong');await settled(touch);const instant=await camera();await touch.waitForTimeout(650);check('Reduced motion instant',instant===await camera());
+ const swipe=async direction=>{const r=await touch.locator('.hm-handle').boundingBox(),x=r.x+r.width/2,y=r.y+r.height/2;await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y+direction*80,id:1}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await settled(touch);};
+ await swipe(-1);check('Swipe half',await touch.locator('#hm-panel').getAttribute('data-snap')==='1');await swipe(-1);check('Swipe full',await touch.locator('#hm-panel').getAttribute('data-snap')==='2');await swipe(1);await swipe(1);await swipe(1);check('Swipe closes',!await touch.locator('#hm-panel').isVisible());await touchContext.close();
+ const wk=await webkit.launch();try{const wp=await wk.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});await wp.goto(base);await wp.evaluate(()=>document.fonts.ready);check('WebKit initial empty',!await wp.locator('#hm-panel').isVisible());check('WebKit overflow',await wp.evaluate(()=>document.documentElement.scrollWidth===innerWidth));await capture(wp,'webkit-overview-390');await wp.locator('[data-pin="donglong"]').click();check('WebKit opens card',await wp.locator('#hm-card-title').textContent()==='東隆宮');await capture(wp,'webkit-card-390');await wp.locator('.hm-panel-close').click();check('WebKit closes card',!await wp.locator('#hm-panel').isVisible());}finally{await wk.close();}
+ check('No JS errors',report.errors.length===0);check('No failed resources',report.failed.length===0);check('No third party requests',report.external.length===0);
+}finally{await browser.close();await fs.writeFile(path.join(out,'mobile-qa.json'),JSON.stringify(report,null,2));}
+console.log(JSON.stringify({checks:report.checks.length,metrics:report.metrics,errors:report.errors,failed:report.failed}));
