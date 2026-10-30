@@ -1,0 +1,43 @@
+{
+  "newJS": {
+    "raw": 52083,
+    "gzip": 21318
+  },
+  "files": [
+    {
+      "file": "dist/assets/city-lab/home-3TNILQHP.js",
+      "raw": 5331,
+      "gzip": 2157,
+      "shared": false,
+      "city": false
+    },
+    {
+      "file": "dist/assets/city-lab/city-PYCBUQDH.js",
+      "raw": 3389,
+      "gzip": 1421,
+      "shared": false,
+      "city": true
+    },
+    {
+      "file": "dist/assets/city-lab/chunk-VBXYKWWX.js",
+      "raw": 9785,
+      "gzip": 4478,
+      "shared": false,
+      "city": false
+    },
+    {
+      "file": "dist/assets/city-lab/chunk-KFUAHMCZ.js",
+      "raw": 48694,
+      "gzip": 19897,
+      "shared": false,
+      "city": true
+    },
+    {
+      "file": "dist/assets/city-lab/chunk-TM2QGESZ.js",
+      "raw": 602622,
+      "gzip": 153534,
+      "shared": true,
+      "city": true
+    }
+  ]
+}
