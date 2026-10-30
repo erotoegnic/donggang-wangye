@@ -19,6 +19,13 @@
       "city": true
     },
     {
+      "file": "dist/assets/city-lab/homecity-QVATQBQH.js",
+      "raw": 3627,
+      "gzip": 1667,
+      "shared": false,
+      "city": false
+    },
+    {
       "file": "dist/assets/city-lab/chunk-VBXYKWWX.js",
       "raw": 9785,
       "gzip": 4478,

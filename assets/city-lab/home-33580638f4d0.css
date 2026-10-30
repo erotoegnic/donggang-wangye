@@ -1,0 +1,63 @@
+/* 首頁第一屏：東港街區微縮模型（只作用在 .home-city 內） */
+.home-city{position:relative;height:calc(100svh - 80px);min-height:560px;max-height:1000px;overflow:clip;background:#eee8dc;isolation:isolate;border-bottom:var(--border)}
+.home-city .city-stage{position:absolute;inset:0;overflow:hidden;background:#eee8dc}
+.home-city-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .4s}
+.home-city .city-canvas{position:absolute;inset:0;opacity:0;transition:opacity .4s}
+.home-city .city-canvas canvas{display:block;width:100%;height:100%}
+.home-city .city-stage[data-state=ready] .city-canvas{opacity:1}
+.home-city .city-stage[data-state=ready] .home-city-poster{opacity:0;pointer-events:none}
+.home-city .city-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
+.home-city .city-pins{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
+.home-city .city-pins line{stroke:var(--pine-accent);stroke-width:1.5}.home-city .city-pins circle{fill:var(--paper);stroke:var(--pine-accent);stroke-width:1.5}
+.home-city .city-label{min-height:44px;max-width:240px;overflow:hidden;text-overflow:ellipsis;background:var(--paper);color:var(--ink);border:2px solid var(--pine-accent);border-radius:999px;padding:4px 12px;font:inherit;font-size:14px;line-height:1.5;pointer-events:auto;white-space:nowrap;cursor:pointer}
+.home-city .city-label:hover,.home-city .city-label[aria-pressed=true]{background:var(--yellow);border-color:var(--ink)}
+.home-city .city-label:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.home-city-heading{position:absolute;z-index:4;left:24px;top:24px;max-width:calc(100% - 48px);padding:16px 24px;background:var(--paper);border:var(--border);border-radius:var(--radius)}
+.home-city-heading .eyebrow{color:var(--muted)}
+.home-city-title{margin:0;font-size:clamp(26px,2.4vw,34px);line-height:1.4;letter-spacing:.03em;word-break:keep-all}
+.home-city-hint{margin:4px 0 0;font-size:15px;color:var(--muted)}
+.home-city-hint .hint-touch{display:none}
+.home-city-button{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:4px 16px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);font:inherit;font-size:15px;line-height:1.5;text-decoration:none;white-space:nowrap;cursor:pointer}
+.home-city-button:hover:not(:disabled),.home-city-button[aria-pressed=true]{background:var(--yellow)}
+.home-city-button:active:not(:disabled){transform:translateY(1px)}
+.home-city-button:disabled{opacity:.55;cursor:default}
+.home-city-button:focus-visible,.home-city a:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.home-city-controls{position:absolute;z-index:4;left:24px;bottom:88px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}
+.home-city-controls>div{display:flex;flex-wrap:wrap;gap:8px;pointer-events:auto}
+.home-city-interact{display:none}
+.home-city-links{position:absolute;z-index:4;left:24px;right:24px;bottom:20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;pointer-events:none}
+.home-city-links>*{pointer-events:auto}
+.home-city-links .button{margin:0}
+.home-city-links a:not(.button){display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;background:#fffcf6e6;font-size:15px;color:var(--ink)}
+.home-city-status{position:absolute;z-index:4;right:24px;top:24px;max-width:300px;margin:0;padding:8px 14px;background:var(--paper);border:2px solid var(--ink);border-radius:16px;font-size:14px}
+.home-city[data-state=ready] .home-city-status{clip-path:inset(50%);width:1px;height:1px;overflow:hidden;padding:0;border:0;white-space:nowrap}
+.home-city-credit{position:absolute;z-index:3;right:12px;bottom:8px;font-size:11px;color:var(--ink);background:#fffcf6cc;padding:0 6px;border-radius:6px}
+.home-city-info{position:absolute;z-index:5;right:24px;top:96px;width:340px;max-width:calc(100% - 48px);max-height:calc(100% - 200px);overflow:auto;padding:24px;padding-right:56px;background:var(--paper);border:var(--border);border-radius:var(--radius)}
+.home-city-info h2{margin:4px 0 8px;font-size:24px;line-height:1.4;font-weight:400}
+.home-city-info p{margin:0 0 16px;font-size:15px;line-height:1.8}
+.home-city-close{position:absolute;top:8px;right:8px;padding:0;font-size:22px}
+.home-city-read{background:var(--yellow)}
+@media(max-width:760px),(pointer:coarse){
+ .home-city-hint .hint-pointer{display:none}.home-city-hint .hint-touch{display:inline}
+ .home-city-interact{display:inline-flex}.home-city-motion{display:none}
+}
+@media(max-width:760px){
+ .home-city{display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;height:calc(100svh - 72px - 56px);min-height:470px;max-height:860px;background:var(--paper)}
+ .home-city-heading{position:static;max-width:none;padding:10px 16px 8px;border:0;border-bottom:2px solid var(--ink);border-radius:0}
+ .home-city-heading .eyebrow{display:none}.home-city-title{font-size:21px}.home-city-hint{margin:0;font-size:13px;line-height:1.6}
+ .home-city .city-stage{position:relative;inset:auto;min-height:0}
+ .home-city-controls{position:static;padding:8px 12px 2px;gap:8px;border-top:2px solid var(--ink);pointer-events:auto;align-items:stretch}
+ .home-city-controls>div{flex-wrap:nowrap;gap:6px}
+ .home-city-controls .home-city-button{flex:1 1 auto;padding:4px 8px;font-size:14px}
+ .home-city-tools .home-city-interact{flex:2 1 auto}
+ .home-city-links{position:static;flex-wrap:nowrap;padding:6px 12px 10px;gap:4px 10px}
+ .home-city-links .button{min-height:44px;padding:6px 14px;font-size:14px;white-space:nowrap}
+ .home-city-links a:not(.button){padding:0 2px;font-size:14px;white-space:nowrap;background:none;text-decoration:underline;text-underline-offset:4px}
+ .home-city-status{top:auto;bottom:12px;right:12px;left:12px;max-width:none}
+ .home-city .city-stage .home-city-info{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-width:none;max-height:calc(100% - 16px);padding:10px 14px 12px;padding-right:52px;border-width:2px;border-radius:16px}
+ .home-city-info .eyebrow{display:none}.home-city-info h2{margin:2px 0 4px;font-size:19px}.home-city-info p{margin:0 0 8px;font-size:14px;line-height:1.65}.home-city-close{top:4px;right:4px}
+ .home-city .city-label{font-size:12px;max-width:200px;padding:4px 8px}
+}
+@media(max-width:560px){.home-city-links a[href$="overview.html"]{display:none}}
+@media(max-width:360px){.home-city-links a[href$="map.html"]{display:none}}
+@media(prefers-reduced-motion:reduce){.home-city *{transition:none!important}}
