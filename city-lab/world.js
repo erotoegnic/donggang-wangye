@@ -1,6 +1,7 @@
 import {Group,Shape,ShapeGeometry,BoxGeometry,BufferGeometry,Float32BufferAttribute,PlaneGeometry,ExtrudeGeometry} from 'three';
 import {createKit} from './kit.js';
 import {createTemple} from './model.js';
+import {createZhenhai} from './zhenhai.js';
 
 const inside=(p,polygon)=>{let hit=false;for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){const a=polygon[i],b=polygon[j];if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])hit=!hit;}return hit;};
 const segmentDistance=(p,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dz)/(dx*dx+dz*dz||1)));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dz);};
@@ -17,8 +18,11 @@ export function createWorld(data,{mobile=false}={}){
  const roadWidth=layer=>layer==='major'||layer==='bridge'?.72:layer==='minor'?.48:.26;
  for(const r of data.roads){const [a,b]=r.points,dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz);if(len<.015)continue;k.put('road',k.geometry('road',()=>new PlaneGeometry(1,1).rotateX(-Math.PI/2)),'paper',[(a[0]+b[0])/2,.09,(a[1]+b[1])/2],[roadWidth(r.layer),1,len+.08],[0,Math.atan2(dx,dz),0]);}
  let seed=2718;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+ // 鎮海宮依 OSM way/1274413112 的外框：廟門朝西南西、面向鎮海路；整座模型往後退，讓石階前緣停在路邊。
+ const zhenhaiPlace=data.places.find(p=>p.id==='place-lunding'),zhenhaiAngle=Math.atan2(-.8824,.4706),zhenhaiScale=.18;
+ const zhenhaiAt=zhenhaiPlace&&[zhenhaiPlace.point[0]-Math.sin(zhenhaiAngle)*1+Math.cos(zhenhaiAngle)*.15,zhenhaiPlace.point[2]-Math.cos(zhenhaiAngle)*1-Math.sin(zhenhaiAngle)*.15];
  const occupied=[],landmarks=data.places.filter(p=>p.kind!=='harbor'),houses=[];
- const clear=(x,z,r=1)=>!isWater([x,z])&&!landmarks.some(p=>Math.hypot(p.point[0]-x,p.point[2]-z)<(p.kind==='donglong'?4.5:p.kind==='coast'?3:p.size===1?2.1:1.25)+r)&&!occupied.some(p=>Math.hypot(p[0]-x,p[1]-z)<r+.55)&&!data.roads.some(road=>segmentDistance([x,z],...road.points)<roadWidth(road.layer)/2+r*.58);
+ const clear=(x,z,r=1)=>!isWater([x,z])&&!(zhenhaiAt&&Math.hypot(zhenhaiAt[0]-x,zhenhaiAt[1]-z)<1.75+r)&&!landmarks.some(p=>Math.hypot(p.point[0]-x,p.point[2]-z)<(p.kind==='donglong'?4.5:p.kind==='coast'?3:p.size===1?2.1:1.25)+r)&&!occupied.some(p=>Math.hypot(p[0]-x,p[1]-z)<r+.55)&&!data.roads.some(road=>segmentDistance([x,z],...road.points)<roadWidth(road.layer)/2+r*.58);
  for(const road of data.roads.filter(r=>r.layer!=='lane').sort((a,b)=>Math.sin(a.points[0][0]*73+a.points[0][1]*31)-Math.sin(b.points[0][0]*73+b.points[0][1]*31))){
   const [a,b]=road.points,dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);if(length<1.5)continue;
   for(let t=.9;t<length;t+=1.55+random()*.5)for(const side of [-1,1]){
@@ -55,7 +59,8 @@ export function createWorld(data,{mobile=false}={}){
   for(const side of [-1,1])k.ball(.055,.09,.055,'districtJade',x+side*w*.22,y+h+.1,z);
  }
  for(const p of data.places){const [x,,z]=p.point;
-  if(p.kind==='temple'){
+  if(p.id==='place-lunding'){p.height=2.2;}
+  else if(p.kind==='temple'){
    const s=p.size,w=2.1*s,d=1.6*s;
    block(w+.6,.14,d+1.3,'stone',x,.16,z+.25);block(w,1.05*s,d,'cream',x,.72*s,z);block(w*.66,.78*s,.04,'hallDark',x,.64*s,z+d/2+.02);
    for(const dx of [-.43,-.2,.2,.43])k.cylinder(.06*s,.075*s,.94*s,'hallRed',x+w*dx,.69*s,z+d/2+.3*s);
@@ -86,7 +91,8 @@ export function createWorld(data,{mobile=false}={}){
   const boat=bk.finish();boat.position.set(x,.05,z);boat.scale.setScalar(1.25);boat.rotation.y=.4+boats.length*.6;group.add(boat);boats.push({group:boat,dispose:bk.dispose,phase:boats.length});
  }
  for(let i=0;i<55;i++){const x=west+2+random()*(east-west-4),z=north+2+random()*(south-north-4);if(isWater([x,z]))block(.6+random(),.015,.055,'blue',x,.07,z);}
+ const zhenhai=zhenhaiAt&&createZhenhai({mobile});if(zhenhai){zhenhai.group.scale.setScalar(zhenhaiScale);zhenhai.group.rotation.y=zhenhaiAngle;zhenhai.group.position.set(zhenhaiAt[0],.04,zhenhaiAt[1]);group.add(zhenhai.group);}
  const district=k.finish();group.add(district);temple.group.scale.setScalar(.42);temple.group.position.y=.12;group.add(temple.group);
- const materials=new Map([...k.materials,...temple.materials]);
- return {group,materials,targets,boats,stats:{houses:houses.length,roads:data.roads.length,docks:dockCount,boats:boats.length},animate(now){for(const b of boats){b.group.position.y=.08+Math.sin(now*.0007+b.phase)*.045;b.group.rotation.z=Math.sin(now*.0005+b.phase)*.035;}},dispose(){k.dispose();temple.dispose();boats.forEach(b=>b.dispose());}};
+ const materials=new Map([...k.materials,...temple.materials,...(zhenhai?zhenhai.materials:[])]);
+ return {group,materials,targets,boats,stats:{houses:houses.length,roads:data.roads.length,docks:dockCount,boats:boats.length},animate(now){for(const b of boats){b.group.position.y=.08+Math.sin(now*.0007+b.phase)*.045;b.group.rotation.z=Math.sin(now*.0005+b.phase)*.035;}},dispose(){k.dispose();temple.dispose();zhenhai?.dispose();boats.forEach(b=>b.dispose());}};
 }
