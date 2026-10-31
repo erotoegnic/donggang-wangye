@@ -22,32 +22,33 @@ export function createWorld(data,{mobile=false}={}){
  data.polygons.forEach((p,i)=>polygon(p.points,p.layer==='green'?'leaf':p.layer==='sea'?'sea':'water',p.layer==='green'?.035:.055,'ground-'+i));
  const isWater=p=>water.some(w=>inside(p,w.points));
  const roadWidth=layer=>layer==='major'||layer==='bridge'?.72:layer==='minor'?.48:.26;
- for(const r of data.roads){const [a,b]=r.points,dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz);if(len<.015)continue;k.put('road',k.geometry('road',()=>new PlaneGeometry(1,1).rotateX(-Math.PI/2)),'paper',[(a[0]+b[0])/2,.09,(a[1]+b[1])/2],[roadWidth(r.layer),1,len+.08],[0,Math.atan2(dx,dz),0]);}
  let seed=2718;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
  // 依實景照片程式建模的角頭廟。鎮海宮依 OSM way/1274413112 外框，廟門朝西南西面向鎮海路；
  // 東隆壇（延平路49號）面向西北的延平路。福安宮（延平路209號）面向延平路、左側是福德街；
  // 朝隆宮依 OSM way/773895829 外框，牌樓臨延平路；東福殿面向延平路（屏128），雨棚在前、廟身在右後；
  // 共善堂（頂中街西側，進水宮神祇同祀於此）面向頂中街；鎮靈宮（新基街68號）坐東朝西面向新基街。
- // back／side 讓模型前緣停在路邊、避開兩側巷道。
+ // 廟宇依實際位置面向前方街道，以等比例放大到接近東隆宮的量體；back／side 讓前緣停在路邊，必要時在街廓內微調位置與角度。
  const customTemples=[
-  {id:'place-lunding',create:createZhenhai,angle:Math.atan2(-.8824,.4706),scale:.2,tall:1.3,back:1.1,side:0,clear:1.9},
-  {id:'place-ding',create:createDonglongtan,angle:Math.atan2(-.855,-.519),scale:.18,tall:1.6,back:-.1,side:.5,clear:1.4},
-  {id:'place-anhai',create:createFuan,angle:Math.atan2(-.538,-.844),scale:.12,tall:2.2,back:.3,side:.95,clear:2},
-  {id:'place-xiazhong',create:createChaolong,angle:Math.atan2(.904,.427),scale:.12,tall:1.8,back:-.25,side:.6,clear:1.6},
-  {id:'place-xia',create:createDongfu,angle:Math.atan2(-.748,-.664),scale:.11,tall:2.4,back:.6,side:.8,clear:2.4},
-  {id:'place-dingzhong',create:createGongshan,angle:Math.atan2(.863,.505),scale:.11,tall:2.2,back:.55,side:0,clear:1.6},
-  {id:'place-pu',create:createZhenling,angle:Math.atan2(-.879,-.476),scale:.11,tall:1.6,back:-.85,side:.05,clear:1.7}
+  {id:'place-lunding',create:createZhenhai,angle:Math.atan2(-.8824,.4706),scale:.42,back:2.36,side:-2},
+  {id:'place-ding',create:createDonglongtan,angle:Math.atan2(-.855,-.519),scale:.52,back:.64,side:-.5},
+  {id:'place-anhai',create:createFuan,angle:Math.atan2(-.538,-.844),scale:.56,back:1.62,side:-.55},
+  {id:'place-xiazhong',create:createChaolong,angle:Math.atan2(.904,.427),scale:.4,back:1.39,side:-.4},
+  {id:'place-xia',create:createDongfu,angle:Math.atan2(-.748,-.664)-.16,scale:.34,back:1.97,side:1.52},
+  {id:'place-dingzhong',create:createGongshan,angle:Math.atan2(.863,.505)+.08,scale:.39,back:2.07,side:-1.74},
+  {id:'place-pu',create:createZhenling,angle:Math.atan2(-.879,-.476)+.16,scale:.32,back:.11,side:-1.46}
  ].map(c=>{const p=data.places.find(p=>p.id===c.id);return p&&{...c,at:[p.point[0]-Math.sin(c.angle)*c.back+Math.cos(c.angle)*c.side,p.point[2]-Math.cos(c.angle)*c.back-Math.sin(c.angle)*c.side]};}).filter(Boolean);
- // 角頭廟與東隆宮周邊的民宅一律壓成矮房，讓廟宇在街區裡明顯高出一截。
- const nearTemple=(x,z)=>Math.hypot(x,z)<9||customTemples.some(c=>Math.hypot(c.at[0]-x,c.at[1]-z)<c.clear+3.2);
+ // 先建模型取得外框：外框內的民宅、樹木與完全被蓋住的巷道段都不再產生。
+ for(const c of customTemples){c.model=c.create({mobile});const box=new Box3().setFromObject(c.model.group);c.box=[box.min.x*c.scale,box.max.x*c.scale,box.min.z*c.scale,box.max.z*c.scale];c.top=box.max.y*c.scale+.04;}
+ const inTemple=(x,z,m=0)=>customTemples.some(c=>{const dx=x-c.at[0],dz=z-c.at[1],cs=Math.cos(c.angle),sn=Math.sin(c.angle),lx=dx*cs-dz*sn,lz=dx*sn+dz*cs;return lx>c.box[0]-m&&lx<c.box[1]+m&&lz>c.box[2]-m&&lz<c.box[3]+m;});
+ for(const r of data.roads){const [a,b]=r.points,dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz);if(len<.015||(r.layer!=='major'&&r.layer!=='bridge'&&inTemple(...a)&&inTemple(...b)&&inTemple((a[0]+b[0])/2,(a[1]+b[1])/2)))continue;k.put('road',k.geometry('road',()=>new PlaneGeometry(1,1).rotateX(-Math.PI/2)),'paper',[(a[0]+b[0])/2,.09,(a[1]+b[1])/2],[roadWidth(r.layer),1,len+.08],[0,Math.atan2(dx,dz),0]);}
  const occupied=[],landmarks=data.places.filter(p=>p.kind!=='harbor'),houses=[];
- const clear=(x,z,r=1)=>!isWater([x,z])&&!customTemples.some(c=>Math.hypot(c.at[0]-x,c.at[1]-z)<c.clear+r)&&!landmarks.some(p=>Math.hypot(p.point[0]-x,p.point[2]-z)<(p.kind==='donglong'?5.6:p.kind==='coast'?3:p.size===1?2.1:1.25)+r)&&!occupied.some(p=>Math.hypot(p[0]-x,p[1]-z)<r+.55)&&!data.roads.some(road=>segmentDistance([x,z],...road.points)<roadWidth(road.layer)/2+r*.58);
+ const clear=(x,z,r=1)=>!isWater([x,z])&&!inTemple(x,z,r+.35)&&!landmarks.some(p=>Math.hypot(p.point[0]-x,p.point[2]-z)<(p.kind==='donglong'?5.6:p.kind==='coast'?3:p.size===1?2.1:1.25)+r)&&!occupied.some(p=>Math.hypot(p[0]-x,p[1]-z)<r+.55)&&!data.roads.some(road=>segmentDistance([x,z],...road.points)<roadWidth(road.layer)/2+r*.58);
  for(const road of data.roads.filter(r=>r.layer!=='lane').sort((a,b)=>Math.sin(a.points[0][0]*73+a.points[0][1]*31)-Math.sin(b.points[0][0]*73+b.points[0][1]*31))){
   const [a,b]=road.points,dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);if(length<1.5)continue;
   for(let t=.9;t<length;t+=1.55+random()*.5)for(const side of [-1,1]){
    const offset=roadWidth(road.layer)/2+.85,x=a[0]+dx*t/length+dz/length*offset*side,z=a[1]+dz*t/length-dx/length*offset*side;
    if(x<west+1||x>east-1||z<north+1||z>south-1||!clear(x,z,.7)||houses.length>=(mobile?150:360))continue;
-   occupied.push([x,z]);const angle=Math.atan2(-dz*side,dx*side),tier=Math.floor(random()*3),h=nearTemple(x,z)?.6:.85+tier*.45,w=.78+random()*.3,d=1.1,shade=['paper','cream','paleBlue','dustRose','stone'][Math.floor(random()*5)];
+   occupied.push([x,z]);const angle=Math.atan2(-dz*side,dx*side),tier=Math.floor(random()*3),h=.85+tier*.45,w=.78+random()*.3,d=1.1,shade=['paper','cream','paleBlue','dustRose','stone'][Math.floor(random()*5)];
    block(w,h,d,shade,x,h/2+.12,z,angle);block(w+.12,.12,d+.1,'tile',x,h+.2,z,angle);
    const local=(xx,zz)=>[x+xx*Math.cos(angle)+zz*Math.sin(angle),z-xx*Math.sin(angle)+zz*Math.cos(angle)];
    for(const floor of [.55,1.05,1.5].filter(y=>y<h))for(const xx of [-w*.24,w*.24]){const [wx,wz]=local(xx,d*.51);k.put('window',k.geometry('window',()=>new PlaneGeometry(1,1)),(houses.length+Math.round(floor*10))%3===0?'windowGlow':'pine',[wx,floor,wz],[w*.22,.25,1],[0,angle,0]);}
@@ -110,8 +111,8 @@ export function createWorld(data,{mobile=false}={}){
   const boat=bk.finish();boat.position.set(x,.05,z);boat.scale.setScalar(1.25);boat.rotation.y=.4+boats.length*.6;group.add(boat);boats.push({group:boat,dispose:bk.dispose,phase:boats.length});
  }
  for(let i=0;i<55;i++){const x=west+2+random()*(east-west-4),z=north+2+random()*(south-north-4);if(isWater([x,z]))block(.6+random(),.015,.055,'blue',x,.07,z);}
- const customModels=customTemples.map(c=>{const model=c.create({mobile});model.group.scale.set(c.scale,c.scale*c.tall,c.scale);model.group.rotation.y=c.angle;model.group.position.set(c.at[0],.04,c.at[1]);group.add(model.group);const p=data.places.find(p=>p.id===c.id);const top=new Box3().setFromObject(model.group).max.y;p.height=top+.45;c.at[2]=top*.45;return model;});
+ const customModels=customTemples.map(c=>{const model=c.model;model.group.scale.setScalar(c.scale);model.group.rotation.y=c.angle;model.group.position.set(c.at[0],.04,c.at[1]);group.add(model.group);return model;});
  const district=k.finish();group.add(district);temple.group.scale.setScalar(.52);temple.group.position.y=.12;group.add(temple.group);
  const materials=new Map([...k.materials,...temple.materials,...customModels.flatMap(m=>[...m.materials])]);
- return {group,materials,targets,boats,focus:Object.fromEntries(customTemples.map(c=>[c.id,c.at])),stats:{houses:houses.length,roads:data.roads.length,docks:dockCount,boats:boats.length},animate(now){for(const b of boats){b.group.position.y=.08+Math.sin(now*.0007+b.phase)*.045;b.group.rotation.z=Math.sin(now*.0005+b.phase)*.035;}},dispose(){k.dispose();temple.dispose();customModels.forEach(m=>m.dispose());boats.forEach(b=>b.dispose());}};
+ return {group,materials,targets,boats,focus:Object.fromEntries(customTemples.map(c=>[c.id,[c.at[0],c.at[1],c.top*.45,Math.max(6,Math.min(8,40/Math.max(c.box[1]-c.box[0],c.box[3]-c.box[2],c.top*1.4)))]])),labels:Object.fromEntries(customTemples.map(c=>[c.id,[c.at[0],c.top+.45,c.at[1]]])),stats:{houses:houses.length,roads:data.roads.length,docks:dockCount,boats:boats.length},animate(now){for(const b of boats){b.group.position.y=.08+Math.sin(now*.0007+b.phase)*.045;b.group.rotation.z=Math.sin(now*.0005+b.phase)*.035;}},dispose(){k.dispose();temple.dispose();customModels.forEach(m=>m.dispose());boats.forEach(b=>b.dispose());}};
 }
