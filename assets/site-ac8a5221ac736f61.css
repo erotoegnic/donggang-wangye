@@ -120,13 +120,15 @@ img,svg{display:block;max-width:100%}[hidden]{display:none!important}
 .article-figures>li:nth-child(3n) .article-figure--portrait figcaption{border-top-color:var(--coral)}
 .article-figure-group{margin-top:32px}
 .article-body .article-figures--grouped{grid-auto-rows:1fr}
+.article-body .article-figure .article-figure-slot{font-size:13px;line-height:1.5;margin:0 0 4px;color:var(--ink);opacity:.75;letter-spacing:.06em}
+.article-body .article-figures--slots.article-figures--n3>li.is-center{grid-column:1/-1;order:-1;justify-self:center;width:calc(50% - 6px)}
 .article-figures>li:nth-child(3n+2) img{border-bottom-color:var(--blue)}
 .article-figures>li:nth-child(3n) img{border-bottom-color:var(--coral)}
 .article-figure figcaption{padding:12px}
 .article-body .article-figure :is(h3,h4){font-size:18px;font-weight:400;line-height:1.5;margin:0 0 8px;text-wrap:balance}
 .article-body .article-figure p{font-size:14px;line-height:1.85;margin:0;word-break:normal;text-wrap:pretty}
 .article-body .article-figure p+p{margin-top:8px}
-@media(min-width:768px){.article-body .article-figures{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.article-figure figcaption{padding:16px}.article-body .article-figure :is(h3,h4){font-size:22px}.article-body .article-figure p{font-size:16px}}
+@media(min-width:768px){.article-body .article-figures{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.article-body .article-figures--slots.article-figures--n3>li.is-center{grid-column:auto;order:0;width:auto;justify-self:stretch}.article-body .article-figures--slots.article-figures--n2{grid-template-columns:repeat(2,minmax(0,1fr));max-width:calc((100% - 32px)/3*2 + 16px);margin-inline:auto}.article-figure figcaption{padding:16px}.article-body .article-figure :is(h3,h4){font-size:22px}.article-body .article-figure p{font-size:16px}}
 @media(min-width:768px) and (max-width:1023px){.article-layout:has(.article-figures){grid-template-columns:minmax(0,1fr);gap:32px}.article-layout:has(.article-figures) .article-toc{position:static}}
 
 .page-heading>div,.chapter-card,.card-copy,.ritual-stage>div{min-width:0}
