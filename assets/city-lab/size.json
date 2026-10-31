@@ -1,48 +1,48 @@
 {
   "newJS": {
-    "raw": 85689,
-    "gzip": 34043
+    "raw": 85975,
+    "gzip": 34223
   },
   "files": [
     {
-      "file": "dist/assets/city-lab/home-TEKDGM2N.js",
+      "file": "dist/assets/city-lab/home-IH7FQGSM.js",
       "raw": 5331,
-      "gzip": 2155,
+      "gzip": 2154,
       "shared": false,
       "city": false
     },
     {
-      "file": "dist/assets/city-lab/city-EECRIZA5.js",
+      "file": "dist/assets/city-lab/city-JYMCUC7K.js",
       "raw": 3389,
       "gzip": 1422,
       "shared": false,
       "city": true
     },
     {
-      "file": "dist/assets/city-lab/homecity-LABIJPKN.js",
+      "file": "dist/assets/city-lab/homecity-UJ4MEYRG.js",
       "raw": 3627,
       "gzip": 1667,
       "shared": false,
       "city": false
     },
     {
-      "file": "dist/assets/city-lab/chunk-MO6ORZ2H.js",
+      "file": "dist/assets/city-lab/chunk-7UWCPX3W.js",
       "raw": 9780,
       "gzip": 4478,
       "shared": false,
       "city": false
     },
     {
-      "file": "dist/assets/city-lab/chunk-CKYJTXP2.js",
-      "raw": 82300,
-      "gzip": 32621,
+      "file": "dist/assets/city-lab/chunk-VQQS4XYL.js",
+      "raw": 82586,
+      "gzip": 32801,
       "shared": false,
       "city": true
     },
     {
-      "file": "dist/assets/city-lab/chunk-GG4NIH26.js",
-      "raw": 602638,
-      "gzip": 153542,
+      "file": "dist/assets/city-lab/chunk-35Q5SJGD.js",
+      "raw": 602646,
+      "gzip": 153547,
       "shared": true,
       "city": true
     }
