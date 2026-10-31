@@ -72,7 +72,7 @@ export async function createScene(root,places,onSelect,onFailure,world){
  }
  function fly(targetTo,zoomTo,offset=homeOffset){controls.update();flight={start:performance.now(),from:camera.position.clone(),to:targetTo.clone().add(offset),targetFrom:controls.target.clone(),targetTo,zoomFrom:camera.zoom,zoomTo};schedule();}
  function reset(){selected=null;fly(homeTarget.clone(),1);}
- function focus(id){const place=places.find(p=>p.id===id);if(!place)return;selected=id;const targetTo=new Vector3(...place.point),at=model.focus?.[id];if(at){targetTo.x=at[0];targetTo.z=at[1];}targetTo.y=Math.max(.8,targetTo.y-1);const zoomTo=place.kind==='harbor'?3.5:place.kind==='donglong'?7:place.kind==='detail'?9:9;fly(targetTo,root.clientWidth<761?zoomTo*.65:zoomTo);}
+ function focus(id){const place=places.find(p=>p.id===id);if(!place)return;selected=id;const targetTo=new Vector3(...place.point),at=model.focus?.[id];targetTo.y=Math.max(.8,targetTo.y-1);if(at){targetTo.x=at[0];targetTo.z=at[1];targetTo.y=at[2]??targetTo.y;}const zoomTo=place.kind==='harbor'?3.5:place.kind==='donglong'?5.8:place.kind==='detail'?9:at?8:9;fly(targetTo,root.clientWidth<761?zoomTo*.65:zoomTo);}
  function setMotion(value){playing=value;schedule();}
  function setTime(time){
   const presets={day:{bg:0xeee8dc,sky:0xfffcf6,sun:0xfff1db,ambient:2.6,power:3.1,glow:0,pos:[-9,17,12]},dusk:{bg:0xe2c5ad,sky:0xffdec0,sun:0xffb578,ambient:1.8,power:2.7,glow:.65,pos:[-14,8,9]},night:{bg:0x293a4b,sky:0xadc8e5,sun:0xa9c8e5,ambient:.95,power:1.1,glow:2.8,pos:[-8,15,-5]}};
