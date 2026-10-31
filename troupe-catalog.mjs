@@ -502,16 +502,6 @@ export default [
         "figures": [
           {
             "group": "第一組　沈・林・朱",
-            "slot": "第一組・左",
-            "title": "沈大元帥",
-            "src": "/assets/jinjia/jinjia-04-shen.webp",
-            "alt": "沈大元帥全身繪本插畫：半邊彩虹魚鱗、半邊藍底白漩渦與紅金錢紋臉譜，橘黃絨球通天冠插長雉雞尾，綠色虎紋袍與黃綬帶，手持三尖刀與令牌",
-            "width": 480,
-            "height": 720,
-            "details": [{"label": "兵器", "value": "三尖刀"}, {"label": "臉譜", "value": "水底鱗甲魚。"}]
-          },
-          {
-            "group": "第一組　沈・林・朱",
             "slot": "第一組・中",
             "title": "林大元帥",
             "src": "/assets/jinjia/jinjia-01-lin.webp",
@@ -519,6 +509,16 @@ export default [
             "width": 480,
             "height": 720,
             "details": [{"label": "兵器", "value": "雙斧"}, {"label": "臉譜", "value": "小羅網，兩頰各有一隻黑蜘蛛；居中尊位。"}]
+          },
+          {
+            "group": "第一組　沈・林・朱",
+            "slot": "第一組・左",
+            "title": "沈大元帥",
+            "src": "/assets/jinjia/jinjia-04-shen.webp",
+            "alt": "沈大元帥全身繪本插畫：半邊彩虹魚鱗、半邊藍底白漩渦與紅金錢紋臉譜，橘黃絨球通天冠插長雉雞尾，綠色虎紋袍與黃綬帶，手持三尖刀與令牌",
+            "width": 480,
+            "height": 720,
+            "details": [{"label": "兵器", "value": "三尖刀"}, {"label": "臉譜", "value": "水底鱗甲魚。"}]
           },
           {
             "group": "第一組　沈・林・朱",
