@@ -1,7 +1,7 @@
 {
   "newJS": {
-    "raw": 85975,
-    "gzip": 34223
+    "raw": 86356,
+    "gzip": 34382
   },
   "files": [
     {
@@ -12,16 +12,16 @@
       "city": false
     },
     {
-      "file": "dist/assets/city-lab/city-JYMCUC7K.js",
+      "file": "dist/assets/city-lab/city-D66X5TW3.js",
       "raw": 3389,
-      "gzip": 1422,
+      "gzip": 1421,
       "shared": false,
       "city": true
     },
     {
-      "file": "dist/assets/city-lab/homecity-UJ4MEYRG.js",
+      "file": "dist/assets/city-lab/homecity-XNQVW7WP.js",
       "raw": 3627,
-      "gzip": 1667,
+      "gzip": 1666,
       "shared": false,
       "city": false
     },
@@ -33,9 +33,9 @@
       "city": false
     },
     {
-      "file": "dist/assets/city-lab/chunk-VQQS4XYL.js",
-      "raw": 82586,
-      "gzip": 32801,
+      "file": "dist/assets/city-lab/chunk-QAZNKDG4.js",
+      "raw": 82967,
+      "gzip": 32961,
       "shared": false,
       "city": true
     },
