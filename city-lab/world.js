@@ -3,6 +3,11 @@ import {createKit} from './kit.js';
 import {createTemple} from './model.js';
 import {createZhenhai} from './zhenhai.js';
 import {createDonglongtan} from './donglongtan.js';
+import {createFuan} from './fuan.js';
+import {createChaolong} from './chaolong.js';
+import {createDongfu} from './dongfu.js';
+import {createGongshan} from './gongshan.js';
+import {createZhenling} from './zhenling.js';
 
 const inside=(p,polygon)=>{let hit=false;for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){const a=polygon[i],b=polygon[j];if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])hit=!hit;}return hit;};
 const segmentDistance=(p,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dz)/(dx*dx+dz*dz||1)));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dz);};
@@ -20,10 +25,18 @@ export function createWorld(data,{mobile=false}={}){
  for(const r of data.roads){const [a,b]=r.points,dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz);if(len<.015)continue;k.put('road',k.geometry('road',()=>new PlaneGeometry(1,1).rotateX(-Math.PI/2)),'paper',[(a[0]+b[0])/2,.09,(a[1]+b[1])/2],[roadWidth(r.layer),1,len+.08],[0,Math.atan2(dx,dz),0]);}
  let seed=2718;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
  // 依實景照片程式建模的角頭廟。鎮海宮依 OSM way/1274413112 外框，廟門朝西南西面向鎮海路；
- // 東隆壇（延平路49號）面向西北的延平路。back／side 讓模型前緣停在路邊、避開兩側巷道。
+ // 東隆壇（延平路49號）面向西北的延平路。福安宮（延平路209號）面向延平路、左側是福德街；
+ // 朝隆宮依 OSM way/773895829 外框，牌樓臨延平路；東福殿面向延平路（屏128），雨棚在前、廟身在右後；
+ // 共善堂（頂中街西側，進水宮神祇同祀於此）面向頂中街；鎮靈宮（新基街68號）坐東朝西面向新基街。
+ // back／side 讓模型前緣停在路邊、避開兩側巷道。
  const customTemples=[
   {id:'place-lunding',create:createZhenhai,angle:Math.atan2(-.8824,.4706),scale:.18,back:1,side:.15,clear:1.75},
-  {id:'place-ding',create:createDonglongtan,angle:Math.atan2(-.855,-.519),scale:.18,back:-.1,side:.5,clear:1.25}
+  {id:'place-ding',create:createDonglongtan,angle:Math.atan2(-.855,-.519),scale:.18,back:-.1,side:.5,clear:1.25},
+  {id:'place-anhai',create:createFuan,angle:Math.atan2(-.538,-.844),scale:.12,back:.3,side:.95,clear:2},
+  {id:'place-xiazhong',create:createChaolong,angle:Math.atan2(.904,.427),scale:.11,back:-.3,side:.35,clear:1.5},
+  {id:'place-xia',create:createDongfu,angle:Math.atan2(-.748,-.664),scale:.11,back:.6,side:.8,clear:2.4},
+  {id:'place-dingzhong',create:createGongshan,angle:Math.atan2(.863,.505),scale:.11,back:.55,side:0,clear:1.5},
+  {id:'place-pu',create:createZhenling,angle:Math.atan2(-.879,-.476),scale:.11,back:-.85,side:.05,clear:1.6}
  ].map(c=>{const p=data.places.find(p=>p.id===c.id);return p&&{...c,at:[p.point[0]-Math.sin(c.angle)*c.back+Math.cos(c.angle)*c.side,p.point[2]-Math.cos(c.angle)*c.back-Math.sin(c.angle)*c.side]};}).filter(Boolean);
  const occupied=[],landmarks=data.places.filter(p=>p.kind!=='harbor'),houses=[];
  const clear=(x,z,r=1)=>!isWater([x,z])&&!customTemples.some(c=>Math.hypot(c.at[0]-x,c.at[1]-z)<c.clear+r)&&!landmarks.some(p=>Math.hypot(p.point[0]-x,p.point[2]-z)<(p.kind==='donglong'?4.5:p.kind==='coast'?3:p.size===1?2.1:1.25)+r)&&!occupied.some(p=>Math.hypot(p[0]-x,p[1]-z)<r+.55)&&!data.roads.some(road=>segmentDistance([x,z],...road.points)<roadWidth(road.layer)/2+r*.58);
@@ -98,5 +111,5 @@ export function createWorld(data,{mobile=false}={}){
  const customModels=customTemples.map(c=>{const model=c.create({mobile});model.group.scale.setScalar(c.scale);model.group.rotation.y=c.angle;model.group.position.set(c.at[0],.04,c.at[1]);group.add(model.group);return model;});
  const district=k.finish();group.add(district);temple.group.scale.setScalar(.42);temple.group.position.y=.12;group.add(temple.group);
  const materials=new Map([...k.materials,...temple.materials,...customModels.flatMap(m=>[...m.materials])]);
- return {group,materials,targets,boats,stats:{houses:houses.length,roads:data.roads.length,docks:dockCount,boats:boats.length},animate(now){for(const b of boats){b.group.position.y=.08+Math.sin(now*.0007+b.phase)*.045;b.group.rotation.z=Math.sin(now*.0005+b.phase)*.035;}},dispose(){k.dispose();temple.dispose();customModels.forEach(m=>m.dispose());boats.forEach(b=>b.dispose());}};
+ return {group,materials,targets,boats,focus:Object.fromEntries(customTemples.map(c=>[c.id,c.at])),stats:{houses:houses.length,roads:data.roads.length,docks:dockCount,boats:boats.length},animate(now){for(const b of boats){b.group.position.y=.08+Math.sin(now*.0007+b.phase)*.045;b.group.rotation.z=Math.sin(now*.0005+b.phase)*.035;}},dispose(){k.dispose();temple.dispose();customModels.forEach(m=>m.dispose());boats.forEach(b=>b.dispose());}};
 }
