@@ -1,20 +1,11 @@
-import {BoxGeometry,CylinderGeometry,SphereGeometry,OctahedronGeometry,TubeGeometry,CatmullRomCurve3,BufferGeometry,Float32BufferAttribute,Matrix4,Euler,Quaternion,Vector3} from 'three';
-import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
-import {createKit} from './kit.js';
+import {CylinderGeometry,BufferGeometry,Float32BufferAttribute} from 'three';
+import {createMergeKit} from './merge-kit.js';
 
 // 崙仔頂鎮海宮：高台、左右分開的寬石階與中央圓形石欄假山，前殿石龍柱與紅柱，
 // 後方殿宇層層升高，最高一層小亭頂立葫蘆寶塔。本地座標 +z 為廟門方向，單位約為前殿寬度的十分之一。
 // 每種顏色先合併成一個幾何，整座廟只多出少數幾次繪製。
 export function createZhenhai({mobile=false}={}){
- const parts=new Map(),seg=mobile?6:10;
- const add=(color,geo,matrix)=>{const g=geo.index?geo.toNonIndexed():geo.clone();g.deleteAttribute('uv');if(!g.getAttribute('normal'))g.computeVertexNormals();if(matrix)g.applyMatrix4(matrix);if(!parts.has(color))parts.set(color,[]);parts.get(color).push(g);};
- const m4=(p,s=[1,1,1],r=[0,0,0])=>new Matrix4().compose(new Vector3(...p),new Quaternion().setFromEuler(new Euler(...r)),new Vector3(...s));
- const unitBox=new BoxGeometry(1,1,1),unitBall=new SphereGeometry(1,seg,Math.max(4,seg/2)),unitBead=new OctahedronGeometry(1),cyls=new Map();
- const box=(w,h,d,color,x,y,z,ry=0)=>add(color,unitBox,m4([x,y,z],[w,h,d],[0,ry,0]));
- const ball=(w,h,d,color,x,y,z,r=[0,0,0])=>add(color,unitBall,m4([x,y,z],[w,h,d],r));
- const bead=(w,h,d,color,x,y,z,r=[0,0,0])=>add(color,unitBead,m4([x,y,z],[w,h,d],r));
- const cyl=(rt,rb,h,color,x,y,z,r=[0,0,0])=>{const k=(rt/rb).toFixed(3);if(!cyls.has(k))cyls.set(k,new CylinderGeometry(rt/rb,1,1,seg));add(color,cyls.get(k),m4([x,y,z],[rb,h,rb],r));};
- const tube=(points,r,color,n=10,closed=false)=>add(color,new TubeGeometry(new CatmullRomCurve3(points.map(p=>new Vector3(...p)),closed),mobile?Math.max(3,Math.ceil(n*.6)):n,r,mobile?3:5,closed));
+ const mk=createMergeKit({mobile,name:'zhenhai'}),{add,m4,box,ball,bead,cyl,tube}=mk;
  const azure='ceramicAzure',tile='zhenhaiTile',gold='hallGoldLight',green='ceramicGreen',red='hallRed',dark='hallDark',stone='stone';
  const H=2.2;
 
@@ -92,9 +83,6 @@ export function createZhenhai({mobile=false}={}){
  for(let i=0;i<5;i++){const r=.3-i*.045;cyl(r*.75,r,.16,gold,0,10.15+i*.2,-5.2);cyl(r*.4,r*1.2,.05,red,0,10.25+i*.2,-5.2);}
  ball(.2,.24,.2,gold,0,11.25,-5.2);ball(.13,.15,.13,gold,0,11.55,-5.2);bead(.05,.18,.05,gold,0,11.8,-5.2);
 
- const k=createKit({mobile});
- for(const [color,list] of parts){const geo=mergeGeometries(list);list.forEach(g=>g.dispose());k.put('zhenhai-'+color,geo,color);}
- [unitBox,unitBall,unitBead,...cyls.values()].forEach(g=>g.dispose());
- const group=k.finish();
- return {group,materials:k.materials,dispose:k.dispose,bounds:{x:[-5.4,5.4],z:[-7,6.2]}};
+ const {group,materials,dispose}=mk.finish();
+ return {group,materials,dispose,bounds:{x:[-5.4,5.4],z:[-7,6.2]}};
 }
